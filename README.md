@@ -46,4 +46,15 @@ Configuration file is located at `config/robosenseAiry.yaml`. Main parameters:
 - `common.lid_topic: "/rslidar_points"` - Point cloud topic
 - `common.imu_topic: "/rslidar_imu_data"` - IMU topic
 
+## Troubleshooting
 
+### Mapping "flies away" at startup with some bags
+
+If one bag works but another "flies away" immediately, first compare `/rslidar_points` fields.
+
+- Expected (this repo): `x, y, z, intensity, ring, timestamp` (`point_step = 26`)
+- Some bags use: `x, y, z, intensity, tag, ring, timestamp` (`point_step = 27`)
+
+The extra `tag` changes field offsets and may break `ring/timestamp` parsing, causing undistortion errors and early divergence.
+
+Also check that per-point `timestamp` units/semantics are the same across bags. If startup motion is large, try `ros2 bag play <bag> --start-offset 2.0`.
