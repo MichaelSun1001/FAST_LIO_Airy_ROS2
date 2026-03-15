@@ -36,9 +36,12 @@
 #include <mutex>
 #include <math.h>
 #include <thread>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <csignal>
 #include <chrono>
+#include <stdexcept>
 #include <unistd.h>
 #include <Python.h>
 #include <so3_math.h>
@@ -67,6 +70,8 @@
 #define LASER_POINT_COV     (0.001)
 #define MAXN                (720000)
 #define PUBFRAME_PERIOD     (20)
+
+namespace fs = std::filesystem;
 
 /*** Time Log Variables ***/
 double kdtree_incremental_time = 0.0, kdtree_search_time = 0.0, kdtree_delete_time = 0.0;
@@ -150,6 +155,57 @@ void SigHandle(int sig)
     std::cout << "catch sig %d" << sig << std::endl;
     sig_buffer.notify_all();
     rclcpp::shutdown();
+}
+
+string expand_user_path(const string &path)
+{
+    if (path.empty() || path[0] != '~')
+    {
+        return path;
+    }
+
+    const char *home_dir = std::getenv("HOME");
+    if (home_dir == nullptr)
+    {
+        return path;
+    }
+
+    if (path.size() == 1)
+    {
+        return string(home_dir);
+    }
+
+    if (path[1] == '/')
+    {
+        return string(home_dir) + path.substr(1);
+    }
+
+    return path;
+}
+
+string prepare_output_path(const string &raw_path)
+{
+    const string resolved_path = expand_user_path(raw_path);
+    const fs::path output_path(resolved_path);
+    const fs::path parent_dir = output_path.parent_path();
+
+    if (!parent_dir.empty())
+    {
+        std::error_code ec;
+        if (fs::exists(parent_dir, ec))
+        {
+            if (!fs::is_directory(parent_dir, ec))
+            {
+                throw std::runtime_error("Parent path is not a directory: " + parent_dir.string());
+            }
+        }
+        else if (!fs::create_directories(parent_dir, ec))
+        {
+            throw std::runtime_error("Failed to create directory: " + parent_dir.string() + ", reason: " + ec.message());
+        }
+    }
+
+    return resolved_path;
 }
 
 inline void dump_lio_state_to_log(FILE *fp)  
@@ -624,8 +680,7 @@ void save_to_pcd()
 {
     if (ikdtree.Root_Node == nullptr)
     {
-        std::cerr << "[ERROR] Cannot save map: ikdtree is empty!" << std::endl;
-        return;
+        throw std::runtime_error("Cannot save map: ikdtree is empty.");
     }
     
     // Get all points from ikdtree
@@ -641,13 +696,13 @@ void save_to_pcd()
     
     if (map_cloud->points.size() == 0)
     {
-        std::cerr << "[ERROR] Cannot save map: no points in ikdtree!" << std::endl;
-        return;
+        throw std::runtime_error("Cannot save map: no points in ikdtree.");
     }
-    
+
+    const string output_path = prepare_output_path(map_file_path);
     pcl::PCDWriter pcd_writer;
-    pcd_writer.writeBinary(map_file_path, *map_cloud);
-    std::cout << "[INFO] Map saved successfully with " << map_cloud->points.size() << " points to " << map_file_path << std::endl;
+    pcd_writer.writeBinary(output_path, *map_cloud);
+    std::cout << "[INFO] Map saved successfully with " << map_cloud->points.size() << " points to " << output_path << std::endl;
 }
 
 template<typename T>
@@ -880,6 +935,7 @@ public:
         this->get_parameter_or<bool>("publish.scan_bodyframe_pub_en", scan_body_pub_en, true);
         this->get_parameter_or<int>("max_iteration", NUM_MAX_ITERATIONS, 4);
         this->get_parameter_or<string>("map_file_path", map_file_path, "");
+        map_file_path = expand_user_path(map_file_path);
         this->get_parameter_or<string>("common.lid_topic", lid_topic, "/livox/lidar");
         this->get_parameter_or<string>("common.imu_topic", imu_topic,"/livox/imu");
         this->get_parameter_or<bool>("common.time_sync_en", time_sync_en, false);
@@ -1168,9 +1224,18 @@ private:
         RCLCPP_INFO(this->get_logger(), "Saving map to %s...", map_file_path.c_str());
         if (pcd_save_en)
         {
-            save_to_pcd();
-            res->success = true;
-            res->message = "Map saved successfully.";
+            try
+            {
+                save_to_pcd();
+                res->success = true;
+                res->message = "Map saved successfully.";
+            }
+            catch (const std::exception &e)
+            {
+                res->success = false;
+                res->message = e.what();
+                RCLCPP_ERROR(this->get_logger(), "Failed to save map: %s", e.what());
+            }
         }
         else
         {
