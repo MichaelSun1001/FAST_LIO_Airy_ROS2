@@ -94,8 +94,8 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Lines
-      Line Width: 0.029999999329447746
+      Line Style: Billboards
+      Line Width: 0.10000000149011612
       Name: Path
       Offset:
         X: 0
@@ -114,11 +114,11 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /path
       Value: true
-    - Alpha: 1
+    - Alpha: 0.5
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 1.5548352003097534
-        Min Value: -8.448118209838867
+        Max Value: 3.9583353996276855
+        Min Value: -10.787101745605469
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -135,8 +135,8 @@ Visualization Manager:
       Name: CloudRegistered
       Position Transformer: XYZ
       Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.05000000074505806
+      Size (Pixels): 1
+      Size (m): 0.009999999776482582
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -262,25 +262,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 31.350540161132812
+      Distance: 53.68602752685547
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.008504047989845276
-        Y: -0.0005770106799900532
-        Z: 0.034441977739334106
+        X: 0.5930163860321045
+        Y: -1.653242588043213
+        Z: -0.4529861509799957
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: -1.4697964191436768
+      Pitch: -1.5297963619232178
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.07541823387146
+      Yaw: 3.2790966033935547
     Saved: ~
 Window Geometry:
   Displays:

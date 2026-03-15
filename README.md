@@ -33,9 +33,11 @@ ros2 launch fast_lio_robosense mapping_robosense_airy.launch.py
 ### Save Map
 
 ```bash
+source install/setup.bash
 ros2 launch fast_lio_robosense mapping_robosense_airy.launch.py map_file_path:=/home/sax/map.pcd
 
 # In another terminal
+source install/setup.bash
 ros2 service call /map_save std_srvs/srv/Trigger
 ```
 
