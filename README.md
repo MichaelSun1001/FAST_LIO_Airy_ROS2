@@ -30,6 +30,15 @@ source install/setup.bash
 ros2 launch fast_lio_robosense mapping_robosense_airy.launch.py
 ```
 
+### Launch GigaAI Rear Airy Bag
+
+```bash
+source install/setup.bash
+ros2 launch fast_lio_robosense mapping_gigaai_airy_rear.launch.py play_bag:=true
+```
+
+This uses `/rslidar_rear/points`, `/rslidar_rear/imu_data`, and the rear LiDAR-IMU extrinsic in `config/gigaai_airy_rear.yaml`.
+
 ### Save Map
 
 ```bash
