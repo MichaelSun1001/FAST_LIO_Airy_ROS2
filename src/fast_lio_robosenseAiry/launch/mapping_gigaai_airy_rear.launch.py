@@ -13,7 +13,10 @@ from launch_ros.actions import Node
 def generate_launch_description():
     package_path = get_package_share_directory('fast_lio_robosense')
     default_config_path = os.path.join(package_path, 'config')
-    default_rviz_config_path = os.path.join(package_path, 'rviz', 'fastlio.rviz')
+    default_rviz_config_path = os.path.join(
+        package_path, 'rviz', 'fastlio.rviz')
+    default_map_file_path = os.path.expanduser(
+        '~/fast_lio_maps/gigaai_airy_rear_map.pcd')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     config_path = LaunchConfiguration('config_path')
@@ -91,7 +94,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'map_file_path',
-            default_value='',
+            default_value=default_map_file_path,
             description='Path to save the map PCD file.',
         ),
         DeclareLaunchArgument(

@@ -676,7 +676,7 @@ void publish_map(rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub
     // pubLaserCloudMap->publish(laserCloudMap);
 }
 
-void save_to_pcd()
+string save_to_pcd()
 {
     if (ikdtree.Root_Node == nullptr)
     {
@@ -703,6 +703,7 @@ void save_to_pcd()
     pcl::PCDWriter pcd_writer;
     pcd_writer.writeBinary(output_path, *map_cloud);
     std::cout << "[INFO] Map saved successfully with " << map_cloud->points.size() << " points to " << output_path << std::endl;
+    return output_path;
 }
 
 template<typename T>
@@ -1226,9 +1227,9 @@ private:
         {
             try
             {
-                save_to_pcd();
+                const string output_path = save_to_pcd();
                 res->success = true;
-                res->message = "Map saved successfully.";
+                res->message = "Map saved successfully to " + output_path;
             }
             catch (const std::exception &e)
             {

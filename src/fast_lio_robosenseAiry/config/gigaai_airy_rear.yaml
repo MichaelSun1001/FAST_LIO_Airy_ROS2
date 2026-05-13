@@ -7,7 +7,7 @@
     filter_size_map: 0.2
     cube_side_length: 200.0
     runtime_pos_log_enable: false
-    map_file_path: ""
+    map_file_path: "~/fast_lio_maps/gigaai_airy_rear_map.pcd"
 
     common:
       lid_topic: "/rslidar_rear/points"

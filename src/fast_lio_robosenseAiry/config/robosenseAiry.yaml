@@ -7,7 +7,7 @@
     filter_size_map: 0.2
     cube_side_length: 200.0
     runtime_pos_log_enable: false
-    map_file_path: "" # Overridden by the launch argument in mapping_robosense_airy.launch.py
+    map_file_path: "~/fast_lio_maps/robosense_airy_map.pcd" # Can be overridden by the launch argument.
 
     common:
       lid_topic: "/rslidar_points"

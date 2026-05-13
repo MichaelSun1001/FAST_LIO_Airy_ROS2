@@ -4,7 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
 from launch.conditions import IfCondition
 
 from launch_ros.actions import Node
@@ -15,12 +15,18 @@ def generate_launch_description():
     default_config_path = os.path.join(package_path, 'config')
     default_rviz_config_path = os.path.join(
         package_path, 'rviz', 'fastlio.rviz')
+    default_map_file_path = os.path.expanduser(
+        '~/fast_lio_maps/robosense_airy_map.pcd')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     config_path = LaunchConfiguration('config_path')
     config_file = LaunchConfiguration('config_file')
     rviz_use = LaunchConfiguration('rviz')
     rviz_cfg = LaunchConfiguration('rviz_cfg')
+    system_library_path = [
+        '/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:',
+        EnvironmentVariable('LD_LIBRARY_PATH', default_value=''),
+    ]
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
         'use_sim_time', default_value='false',
@@ -43,7 +49,7 @@ def generate_launch_description():
         description='RViz config file path'
     )
     declare_map_file_path_cmd = DeclareLaunchArgument(
-        'map_file_path', default_value='',
+        'map_file_path', default_value=default_map_file_path,
         description='Path to save the map PCD file'
     )
 
@@ -55,6 +61,7 @@ def generate_launch_description():
         parameters=[PathJoinSubstitution([config_path, config_file]),
                     {'use_sim_time': use_sim_time,
                      'map_file_path': map_file_path}],
+        additional_env={'LD_LIBRARY_PATH': system_library_path},
         output='screen'
     )
     rviz_node = Node(
